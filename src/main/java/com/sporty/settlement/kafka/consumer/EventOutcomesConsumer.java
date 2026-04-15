@@ -19,6 +19,9 @@ public class EventOutcomesConsumer {
 
     @KafkaListener(topics = "${topics.event.outcomes}")
     public void consume(final EventOutcome eventOutcome) {
+        // if there is no bet in the DB at the time we receive the message, then it will not be settled
+        // if findAll returns empty we can save the event in a DB and retry the settlement later with a scheduler
+        // or maybe the event outcome means the event is finished, so we will not receive any bets for it
         betService.findAllBy(eventOutcome.eventID(), eventOutcome.eventWinnerID())
                 .forEach(betSettlementPublisher::publish);
     }

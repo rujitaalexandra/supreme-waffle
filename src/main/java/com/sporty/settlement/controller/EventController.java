@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.CompletableFuture;
+
 @RestController
 @RequestMapping("/events")
 public class EventController {
@@ -20,8 +22,9 @@ public class EventController {
     }
 
     @PostMapping("/publish-event-outcome")
-    public ResponseEntity<String> publishEventOutcome(@RequestBody PublishEventOutcomeRequest request) {
-        eventOutcomeProducer.publish(new EventOutcome(request.eventId(), request.eventName(), request.eventWinnerId()));
-        return ResponseEntity.ok("Event outcome published");
+    public CompletableFuture<ResponseEntity<String>> publishEventOutcome(@RequestBody PublishEventOutcomeRequest request) throws InterruptedException {
+        return eventOutcomeProducer.publish(new EventOutcome(request.eventId(), request.eventName(), request.eventWinnerId()))
+                .thenApply(result -> ResponseEntity.accepted().body("Event outcome published"))
+                .exceptionally(ex -> ResponseEntity.status(502).body("Failed to publish event outcome: " + ex.getCause().getMessage()));
     }
 }
