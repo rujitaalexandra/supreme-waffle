@@ -7,6 +7,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public class BetRepository {
@@ -32,6 +33,17 @@ public class BetRepository {
         return entries.values().stream()
                 .map(value -> jsonMapper.convertValue(value, Bet.class))
                 .filter(bet -> eventWinnerId.equals(bet.eventWinnerId()))
+                .toList();
+    }
+
+    public List<Bet> findAll() {
+        Set<String> keys = redisTemplate.keys(KEY_PREFIX + "*");
+        if (keys == null || keys.isEmpty()) {
+            return List.of();
+        }
+        return keys.stream()
+                .flatMap(key -> redisTemplate.opsForHash().entries(key).values().stream())
+                .map(value -> jsonMapper.convertValue(value, Bet.class))
                 .toList();
     }
 }

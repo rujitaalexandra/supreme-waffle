@@ -22,4 +22,8 @@ public class BetService {
     public List<Bet> findAllBy(String eventId, String eventWinnerId) {
         return betRepository.findByEventIdAndEventWinnerId(eventId, eventWinnerId);
     }
+
+    public List<Bet> findAll() {
+        return betRepository.findAll();
+    }
 }

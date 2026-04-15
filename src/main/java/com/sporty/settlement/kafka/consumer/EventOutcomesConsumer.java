@@ -17,7 +17,7 @@ public class EventOutcomesConsumer {
         this.betSettlementPublisher = betSettlementPublisher;
     }
 
-    @KafkaListener(topics = "event-outcomes")
+    @KafkaListener(topics = "${topics.event.outcomes}")
     public void consume(final EventOutcome eventOutcome) {
         betService.findAllBy(eventOutcome.eventID(), eventOutcome.eventWinnerID())
                 .forEach(betSettlementPublisher::publish);

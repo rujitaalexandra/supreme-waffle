@@ -3,6 +3,7 @@ package com.sporty.settlement.kafka.producer;
 import com.sporty.settlement.domain.EventOutcome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,8 @@ public class EventOutcomeProducer {
     private static final Logger logger = LoggerFactory.getLogger(EventOutcomeProducer.class);
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    @Value("${topics.event.outcomes}")
+    private String topic;
 
     public EventOutcomeProducer(KafkaTemplate<String, Object> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
@@ -18,7 +21,7 @@ public class EventOutcomeProducer {
 
     public void publish(final EventOutcome eventOutcome) {
         try {
-            kafkaTemplate.send("event-outcomes",
+            kafkaTemplate.send(topic,
                     eventOutcome.eventID(),
                     eventOutcome);
         } catch (Exception e) {
